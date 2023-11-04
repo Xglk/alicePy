@@ -1,6 +1,8 @@
 # alicePy
 gestion des comptes rendus d'activité
 
+Nécessite d'avoir Python3 et PyQt5
+
 En préambule, je ne parle pas Anglais alors je ne vais pas faire semblant. Je ne suis pas non plus au fait des conventions usuelles en python donc désolé si je fais saigner quelques yeux pour ceux qui iront voir le code ;-)
 Pour la petite histoire, j'ai créé ce logiciel il y a une grosse dizaine d'années en VB6 et je m'en sers tous les jours.
 J'ai voulu tester le Python et QT5. Je me suis dit que de réécrire Alice serait une bonne idée, surtout vu l'obsolescence du VB6. Donc voilà le résultat.
