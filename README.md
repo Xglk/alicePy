@@ -13,4 +13,4 @@ Pour les démarrer on les sélectionne.
 Si on démarre une nouvelle activité ça arrête la précédente.
 On peut bien entendu corriger tout ça après coup (oubli de changer d'activité dans alicePy, de le démarrer ou de l'arrêter)
 On peut visualiser un récapitulatif à la semaine, au mois ou à l'année.
-Le principe est là, consultez l'aide pour plus de détails. En français elle est à jour... Ce n'est peut être pas vrai pour les autres langue qui ont été faites à l'arrache. La bonne nouvelle c'est que c'est facile d'en ajouter et de les faire évoluer sans toucher au source.
+Le principe est là, consultez l'aide pour plus de détails. En français elle est à jour... Ce n'est peut être pas vrai pour les autres langues qui ont été faites à l'arrache. La bonne nouvelle c'est que c'est facile d'en ajouter et de les faire évoluer sans toucher au source.
