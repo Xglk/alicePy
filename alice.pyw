@@ -28,7 +28,7 @@ from threading import Timer
 #============================================================================
 # nom du programme
 programme = "ChronoGestion des activités"
-version = "V2.1.bêta"
+version = "V2.2"
 email = "xglk673+alicepy@gmail.com"
 #quantième de l'année
 dj = datetime.now()
@@ -2812,16 +2812,34 @@ class FAlice(QtWidgets.QWidget):
                         on taches.libelle = rec.parent
                         where rec.parent > ""
                         )
-                        select rec.libelle
-                            , jou
-                            , cast(sum(st + stcumul) / 3600 as int) as h
-                            , cast((sum(st + stcumul) - (sum(st + stcumul) % 60) ) /60 % 60 as int) as m
-                            , cast(sum(st + stcumul) % 60 as int) as s 
-                            , sum(st), sum(arrete), sum(stcumul)
-                            , niveau
+                        , cumul as (
+                        select libelle, jou, sum(st) as st, sum(arrete) as arrete, sum(stcumul) as stcumul, parent, ordre_calendrier, niveau 
                         from rec
-                        group by rec.libelle, rec.jou
-                        order by ordre_calendrier, rec.libelle, rec.jou""", (jour_debut, jour_debut, jour_fin ))
+                        group by libelle, jou, parent, ordre_calendrier, niveau
+                        )
+                        select libelle
+                            , jou
+                            , cast((st + stcumul) / 3600 as int) as h
+                            , cast((st + stcumul - ((st + stcumul) % 60) ) /60 % 60 as int) as m
+                            , cast((st + stcumul) % 60 as int) as s 
+                            , st, arrete, stcumul
+                            , niveau
+                            , ordre_calendrier
+                        from cumul
+                        union ALL
+                        select libelle || " " as libelle
+                            , jou
+                            , cast((st) / 3600 as int) as h
+                            , cast((st - ((st) % 60) ) /60 % 60 as int) as m
+                            , cast((st) % 60 as int) as s 
+                            , st, arrete, 0 as stcumul
+                            , niveau + 1 as niveau
+                            , ordre_calendrier
+                        from cumul
+                        where st <> 0
+                          and exists(select 1 from rec where rec.libelle = cumul.libelle and rec.stcumul <> 0)
+                        order by ordre_calendrier, libelle, niveau, jou"""
+                        , (jour_debut, jour_debut, jour_fin ))
         return (self.cur.fetchall())
 
     #sélection d'une année
@@ -3452,7 +3470,7 @@ class FAliceParametrages(QtWidgets.QWidget):
         #choix taille police
         self.size_h00 = QtWidgets.QSpinBox(self)
         self.size_h00.setRange(1, 50)
-        self.size_h00.setValue(self.polices[0][1])
+        self.size_h00.setValue(int(self.polices[0][1]))
         self.size_h00.setGeometry(150 , 190 , 60 , 20)
         self.size_h00.valueChanged.connect(self.changeFont)
         # Boutons pour le gras
@@ -3491,7 +3509,7 @@ class FAliceParametrages(QtWidgets.QWidget):
         #choix taille police
         self.size_h01 = QtWidgets.QSpinBox(self)
         self.size_h01.setRange(1, 50)
-        self.size_h01.setValue(self.polices[1][1])
+        self.size_h01.setValue(int(self.polices[1][1]))
         self.size_h01.setGeometry(150 , 230 , 60 , 20)
         self.size_h01.valueChanged.connect(self.changeFont)
         # Boutons pour le gras
@@ -3530,7 +3548,7 @@ class FAliceParametrages(QtWidgets.QWidget):
         #choix taille police
         self.size_h02 = QtWidgets.QSpinBox(self)
         self.size_h02.setRange(1, 50)
-        self.size_h02.setValue(self.polices[2][1])
+        self.size_h02.setValue(int(self.polices[2][1]))
         self.size_h02.setGeometry(150 , 270 , 60 , 20)
         self.size_h02.valueChanged.connect(self.changeFont)
         # Boutons pour le gras
