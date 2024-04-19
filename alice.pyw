@@ -28,7 +28,7 @@ from threading import Timer
 #============================================================================
 # nom du programme
 programme = "ChronoGestion des activités"
-version = "V2.2"
+version = "V2.4"
 email = "xglk673+alicepy@gmail.com"
 #quantième de l'année
 dj = datetime.now()
@@ -770,7 +770,13 @@ class FAliceActivite(QtWidgets.QWidget):
         self.move_left_button.setToolTip(_("supprimer activités du menu"))
         self.move_up_button.setToolTip(_("remonter dans la liste du menu"))
         self.move_down_button.setToolTip(_("redescendre dans la liste du menu"))
-
+        self.move_up_button2.setToolTip(_("remonter dans le calendrier"))
+        self.move_down_button2.setToolTip(_("redescendre dans le calendrier"))
+        self.parent_button.setText(_("Parent"))
+        self.parent_button.setToolTip(_("remonter dans la hérarchie des activités"))
+        self.enfant_button.setText(_("Enfant"))
+        self.enfant_button.setToolTip(_("redescendre dans la hérarchie des activité"))
+        
     def renommer(self):
         """renommer une activité
         """
@@ -1870,8 +1876,9 @@ class FAlice(QtWidgets.QWidget):
             totalDASem[int(activite[1])] += activite[5]
             #somme des secondes de la semaine
             totalDureeActivite_sans_cumul += activite[5]
-            totalDureeActivite_avec_cumul += activite[5]
-            totalDureeActivite_avec_cumul += activite[7]
+            #totalDureeActivite_avec_cumul += activite[5]
+            #totalDureeActivite_avec_cumul += activite[7]
+            totalDureeActivite_avec_cumul += activite[10]
         #fin
 
         if activite_precedente != "":
@@ -2270,8 +2277,9 @@ class FAlice(QtWidgets.QWidget):
             totalDAMois[int(activite[1])] += activite[5]
             #somme des secondes de la semaine
             totalDureeActivite_sans_cumul += activite[5]
-            totalDureeActivite_avec_cumul += activite[5]
-            totalDureeActivite_avec_cumul += activite[7]
+            #totalDureeActivite_avec_cumul += activite[5]
+            #totalDureeActivite_avec_cumul += activite[7]
+            totalDureeActivite_avec_cumul += activite[10]
         #fin
 
         if activite_precedente != "":
@@ -2822,9 +2830,12 @@ class FAlice(QtWidgets.QWidget):
                             , cast((st + stcumul) / 3600 as int) as h
                             , cast((st + stcumul - ((st + stcumul) % 60) ) /60 % 60 as int) as m
                             , cast((st + stcumul) % 60 as int) as s 
-                            , st, arrete, stcumul
+                            , case when exists(select 1 from rec where rec.libelle = cumul.libelle and rec.stcumul <> 0) then 0 else st end as st
+                            , arrete
+                            , stcumul
                             , niveau
                             , ordre_calendrier
+                            , stcumul + st as stt
                         from cumul
                         union ALL
                         select libelle || " " as libelle
@@ -2835,6 +2846,7 @@ class FAlice(QtWidgets.QWidget):
                             , st, arrete, 0 as stcumul
                             , niveau + 1 as niveau
                             , ordre_calendrier
+                            , st as stt
                         from cumul
                         where st <> 0
                           and exists(select 1 from rec where rec.libelle = cumul.libelle and rec.stcumul <> 0)
@@ -3464,7 +3476,7 @@ class FAliceParametrages(QtWidgets.QWidget):
         self.label_h00.setGeometry(50 , 170 , 120 , 20)
         # ComboBox pour sélectionner la police
         self.font_h00 = QtWidgets.QFontComboBox(self)
-        self.font_h00.setCurrentFont(QtGui.QFont("calibri"))
+        self.font_h00.setCurrentFont(QtGui.QFont("freesansbold"))
         self.font_h00.setGeometry(10 , 190 , 130 , 20)
         self.font_h00.currentFontChanged.connect(self.changeFont)
         #choix taille police
@@ -3503,7 +3515,7 @@ class FAliceParametrages(QtWidgets.QWidget):
         self.label_h01.setGeometry(50 , 210 , 120 , 20)
         # ComboBox pour sélectionner la police
         self.font_h01 = QtWidgets.QFontComboBox(self)
-        self.font_h01.setCurrentFont(QtGui.QFont("calibri"))
+        self.font_h01.setCurrentFont(QtGui.QFont("freesansbold"))
         self.font_h01.setGeometry(10 , 230 , 130 , 20)
         self.font_h01.currentFontChanged.connect(self.changeFont)
         #choix taille police
@@ -3542,7 +3554,7 @@ class FAliceParametrages(QtWidgets.QWidget):
         self.label_h02.setGeometry(50 , 250 , 120 , 20)
         # ComboBox pour sélectionner la police
         self.font_h02 = QtWidgets.QFontComboBox(self)
-        self.font_h02.setCurrentFont(QtGui.QFont("calibri"))
+        self.font_h02.setCurrentFont(QtGui.QFont("freesansbold"))
         self.font_h02.setGeometry(10 , 270 , 130 , 20)
         self.font_h02.currentFontChanged.connect(self.changeFont)
         #choix taille police
@@ -3621,17 +3633,17 @@ class FAliceParametrages(QtWidgets.QWidget):
         self.button_appliquer.setText(_("Appliquer"))
 
     def changeFont(self):
-        #self.polices[0][1] = self.font_h00.value()
+        self.polices[0][0] = self.font_h00.currentText()
         self.polices[0][1] = self.size_h00.value()
         self.polices[0][2] = 87 if self.bold_h00.isChecked() else 0
         self.polices[0][3] = 1 if self.italic_h00.isChecked() else 0
 
-        #self.polices[1][1] = self.font_h01.value()
+        self.polices[1][0] = self.font_h01.currentText()
         self.polices[1][1] = self.size_h01.value()
         self.polices[1][2] = 87 if self.bold_h01.isChecked() else 0
         self.polices[1][3] = 1 if self.italic_h01.isChecked() else 0
 
-        #self.polices[2][1] = self.font_h02.value()
+        self.polices[2][0] = self.font_h02.currentText()
         self.polices[2][1] = self.size_h02.value()
         self.polices[2][2] = 87 if self.bold_h02.isChecked() else 0
         self.polices[2][3] = 1 if self.italic_h02.isChecked() else 0
